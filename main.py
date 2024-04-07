@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+import unicodedata
 import numpy as np
 import datetime as dt
 
@@ -67,7 +68,7 @@ for i in range(min(len(low_temps), len(high_temps))):
 
 # Pull the precipitation probability
 
-precip_headers = soup.find_all(class_='DetailsSummary--precip--1a980')
+precip_headers = soup.find_all(class_='DetailsSummary--precip--1a98O')
 
 precip_prob = []
 
@@ -91,7 +92,8 @@ for i,day in enumerate(wind_scrape):
     if i == 0:
         continue
     else:
-        wind_stats.append(day.text)
+        clean_text = unicodedata.normalize("NFKD", day.text)
+        wind_stats.append(clean_text)
 
 # Create a dictionary with all the information
 
@@ -104,7 +106,7 @@ forecast_date = dt.date.today()
 
 for i in range(num_days):
     forecast_detail[dates[i]] = {'high_temp': high_temps[i], 'low_temp': low_temps[i],
-                                 'wind_stats': wind_stats[i]}
+                                 'precip_prob': precip_prob[i], 'wind_stats': wind_stats[i]}
 
 forecast_dict[forecast_date] = forecast_detail
 
